@@ -1,8 +1,7 @@
- 
 # PyTorch Implementation of: On Numerical Integration in Neural Ordinary Differential Equations
 
 The experiments based on this library are fully supported to run on single/multiple gpus. 
-By default, the device is set to cpu. All our experiments where run on a single GPU.
+By default, the device is set to cpu. All our experiments where run on a single gpu.
 
 ## Requirements 
 * Python 
@@ -14,7 +13,7 @@ By default, the device is set to cpu. All our experiments where run on a single 
 In general all parameters which need to be specified are given in the supplementary material to the paper.
 
 ### Quick verification 
-For quick verify the theorical analysis, run:
+To quick verify that training Neural ODE returns an close approximation of the IMDE, run:
 ```
 python PD.py --option 'test'
 ```
