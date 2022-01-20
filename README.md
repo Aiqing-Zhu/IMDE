@@ -1,7 +1,5 @@
 # PyTorch Implementation of: On Numerical Integration in Neural Ordinary Differential Equations
 
-The experiments based on this library are fully supported to run on single/multiple gpus. 
-By default, the device is set to cpu. All our experiments where run on a single gpu.
 
 ## Requirements 
 * Python 
