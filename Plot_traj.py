@@ -10,11 +10,11 @@ from learner.integrator.rungekutta import RK4
 from imde import IE_PD, IE_DO, IE_LS
 
 ########Flow
-xsize=12
+xsize=15
 legendsize=16
 ticksize=15
 titlesize=18
-linewidth=2
+linewidth=3
 hlinewidth = 1.5
 
 PDsteps =1000
@@ -29,35 +29,33 @@ def main():
     plotPD(ax)
     
     ax = fig.add_subplot(gs[3,0])
-    plot_title(ax, 1)
+    plot_title(ax, 'Pendulum system')
 
     ax = [fig.add_subplot(gs[0,1]), fig.add_subplot(gs[1,1]), fig.add_subplot(gs[2,1])] 
     plotDO(ax)   
-    ax[2].legend(loc='upper center', bbox_to_anchor=(0.5, -0.6), 
+    ax[2].legend(loc='upper center', bbox_to_anchor=(0.5, -0.7), 
            fontsize=legendsize, frameon=False, ncol=3)    
     
     ax = fig.add_subplot(gs[3,1])
-    plot_title(ax, 2)    
-    
-
-        
+    plot_title(ax, 'Damped harmonic oscillator')    
+           
     ax = [fig.add_subplot(gs[0,2]), fig.add_subplot(gs[1,2]), fig.add_subplot(gs[2,2])] 
-    plotLS(ax)
-    
+    plotLS(ax)  
 
     ax = fig.add_subplot(gs[3,2])
-    plot_title(ax, 3)  
+    plot_title(ax, 'Nonlinear Lorenz system')  
     fig.savefig('1.pdf', bbox_inches='tight')
 
-def plot_title(ax,i):
-    ax.text(0,0, r'Benchmark Problem {}'.format(i), fontsize=20, color='black',
+
+def plot_title(ax,name):
+    ax.text(0,-0.4, name, fontsize=20, color='black',
       horizontalalignment='center', verticalalignment='center')
     ax.set_xlim(-1,1)
     ax.set_ylim(-1,1)
     ax.axis('off')
 
+
 def plotPD(ax):
-    
     x0=torch.tensor([0.,1.])
     h=0.04
     train_num = 2
@@ -67,9 +65,9 @@ def plotPD(ax):
     data = PDData(train_num, test_num, h, x0, option = 'output')
     flow_true = data.solver.flow(x0, size, PDsteps)
     t = np.linspace(0, size*PDsteps, PDsteps+1)
-    ax[0].plot(t, flow_true[:, 0], color='grey', label='Original ODE', zorder=0)
-    ax[1].plot(t, flow_true[:, 0], color='grey', label='Original ODE', zorder=0)
-    ax[2].plot(t, flow_true[:, 0], color='grey', label='Original ODE', zorder=0)
+    ax[0].plot(t, flow_true[:, 0], color='grey', label='Original ODE', linewidth= linewidth, zorder=0)
+    ax[1].plot(t, flow_true[:, 0], color='grey', label='Original ODE', linewidth= linewidth, zorder=0)
+    ax[2].plot(t, flow_true[:, 0], color='grey', label='Original ODE', linewidth= linewidth, zorder=0)
     
     ax[0].set_xticks([])
     ax[1].set_xticks([])
@@ -79,7 +77,10 @@ def plotPD(ax):
     ax[0].tick_params(labelsize=ticksize) 
     ax[1].tick_params(labelsize=ticksize) 
     ax[2].tick_params(labelsize=ticksize)  
-    
+    ax[2].set_xlabel(r'$t$', fontsize=xsize)
+    ax[0].set_ylabel(r'$y_1$', fontsize=xsize)
+    ax[1].set_ylabel(r'$y_1$', fontsize=xsize)
+    ax[2].set_ylabel(r'$y_1$', fontsize=xsize)
     
     local = '.\\outputs\\PD_euler_2_0\\model_best.pkl'
     net = torch.load(local, map_location='cpu')
@@ -92,6 +93,7 @@ def plotPD(ax):
     local = '.\\outputs\\PD_explicit midpoint_2_0\\model_best.pkl'
     net = torch.load(local, map_location='cpu')
     plot_PDflow(ax[2], data, h, net, x0)
+
     
 def plot_PDflow(ax, data, h, net, x0):
     size=0.01
@@ -100,28 +102,25 @@ def plot_PDflow(ax, data, h, net, x0):
     flow_modi = RK4(IE_PD(h/net.steps, integrator=net.integrator), N=10).flow(x0, size, PDsteps)
     flow_pred = net.predict(x0, size, steps=PDsteps, keepinitx=True, returnnp=True)
     
-    ax.plot(t, flow_modi[:, 0], color='red', label='IMDE',zorder=1)
-    ax.plot(t, flow_pred[:, 0], color='b', label='Neural ODE',  linestyle='--', dashes=(4, 2),zorder=2)
+    ax.plot(t, flow_modi[:, 0], color='red', label='IMDE', linewidth= linewidth, zorder=1)
+    ax.plot(t, flow_pred[:, 0], color='b', label='Neural ODE',  linestyle='--', dashes=(4, 2), linewidth= linewidth, zorder=2)
     ax.set_title(net.integrator.title()+' $S=${}'.format(net.steps), fontsize=titlesize, loc= 'left')
  
     
 def plotLS(ax):
-    
     x0=np.array([-0.8,0.7,2.6])
     h=0.04
     train_num = 2
     test_num = 2
-    
     size=0.01
-    
     data = LSData(train_num, test_num)
     
     flow_true = data.solver.flow(x0, size, LSsteps)
     t = np.linspace(0, size*LSsteps, LSsteps+1)
     
-    ax[0].plot(t, flow_true[:, 0], color='grey', label='Original ODE', zorder=0)
-    ax[1].plot(t, flow_true[:, 0], color='grey', label='Original ODE', zorder=0)
-    ax[2].plot(t, flow_true[:, 0], color='grey', label='Original ODE', zorder=0)
+    ax[0].plot(t, flow_true[:, 0], color='grey', label='Original ODE', linewidth= linewidth, zorder=0)
+    ax[1].plot(t, flow_true[:, 0], color='grey', label='Original ODE', linewidth= linewidth, zorder=0)
+    ax[2].plot(t, flow_true[:, 0], color='grey', label='Original ODE', linewidth= linewidth, zorder=0)
     ax[0].set_xticks([])
     ax[1].set_xticks([])
     
@@ -131,6 +130,10 @@ def plotLS(ax):
     ax[0].tick_params(labelsize=ticksize) 
     ax[1].tick_params(labelsize=ticksize) 
     ax[2].tick_params(labelsize=ticksize)
+    ax[2].set_xlabel(r'$t$', fontsize=xsize)
+    ax[0].set_ylabel(r'$y_1$', fontsize=xsize)
+    ax[1].set_ylabel(r'$y_1$', fontsize=xsize)
+    ax[2].set_ylabel(r'$y_1$', fontsize=xsize)
 
     local = './outputs/LS_explicit midpoint_2/model_best.pkl'
     net = torch.load(local, map_location='cpu')
@@ -143,7 +146,8 @@ def plotLS(ax):
     local = './outputs/LS_rk4_2/model_best.pkl'
     net = torch.load(local, map_location='cpu')
     plot_LSflow(ax[2], data, h, net, x0)
-   
+ 
+    
 def plot_LSflow(ax, data, h, net, x0):
     size=0.01
     t = np.linspace(0, size*LSsteps, LSsteps+1)
@@ -151,30 +155,26 @@ def plot_LSflow(ax, data, h, net, x0):
     flow_modi = RK4(IE_LS(h/net.steps, integrator=net.integrator), N=10).flow(x0, size, LSsteps)
     flow_pred = net.predict(x0, size, steps=LSsteps, keepinitx=True, returnnp=True)
     
-    ax.plot(t, flow_modi[:, 0], color='red', label='IMDE',zorder=1)
-    ax.plot(t, flow_pred[:, 0], color='b', label='Neural ODE',  linestyle='--', dashes=(4, 2),zorder=2)
+    ax.plot(t, flow_modi[:, 0], color='red', label='IMDE', linewidth= linewidth, zorder=1)
+    ax.plot(t, flow_pred[:, 0], color='b', label='Neural ODE',  linestyle='--', dashes=(4, 2), linewidth= linewidth, zorder=2)
     if net.integrator =='rk4':      
         ax.set_title('RK4 $S=${}'.format(net.steps), fontsize=titlesize, loc= 'left')
     else:
         ax.set_title(net.integrator.title()+' $S=${}'.format(net.steps), fontsize=titlesize, loc= 'left')
 
 def plotDO(ax):
-    
     x0=torch.tensor([2.,0.])
     h=0.02
     train_num = 2
-    test_num = 2
-    
+    test_num = 2 
     size=0.01
-    
     data = DOData(train_num, test_num, h, x0, option = 'output')
-    
-    
+
     flow_true = data.solver.flow(x0, size, DOsteps)
     t = np.linspace(0, size*DOsteps, DOsteps+1)
-    ax[0].plot(t, flow_true[:, 0], color='grey', label='Original ODE', zorder=0)
-    ax[1].plot(t, flow_true[:, 0], color='grey', label='Original ODE', zorder=0)
-    ax[2].plot(t, flow_true[:, 0], color='grey', label='Original ODE', zorder=0)
+    ax[0].plot(t, flow_true[:, 0], color='grey', label='Original ODE', linewidth= linewidth, zorder=0)
+    ax[1].plot(t, flow_true[:, 0], color='grey', label='Original ODE', linewidth= linewidth, zorder=0)
+    ax[2].plot(t, flow_true[:, 0], color='grey', label='Original ODE', linewidth= linewidth, zorder=0)
     ax[0].set_xticks([])
     ax[1].set_xticks([])
     ax[0].set_yticks([1,0,-1])
@@ -183,6 +183,10 @@ def plotDO(ax):
     ax[0].tick_params(labelsize=ticksize) 
     ax[1].tick_params(labelsize=ticksize) 
     ax[2].tick_params(labelsize=ticksize)
+    ax[2].set_xlabel(r'$t$', fontsize=xsize)
+    ax[0].set_ylabel(r'$y_1$', fontsize=xsize)
+    ax[1].set_ylabel(r'$y_1$', fontsize=xsize)
+    ax[2].set_ylabel(r'$y_1$', fontsize=xsize)
     
     local = '.\\outputs\\DO_euler_2\\model_best.pkl'
     net = torch.load(local, map_location='cpu')
@@ -195,16 +199,16 @@ def plotDO(ax):
     local = '.\\outputs\\DO_explicit midpoint_2\\model_best.pkl'
     net = torch.load(local, map_location='cpu')
     plot_DOflow(ax[2], data, h, net, x0)
+
     
 def plot_DOflow(ax, data, h, net, x0):
     size=0.01
-    
     t = np.linspace(0, size*DOsteps, DOsteps+1)
     
     flow_modi = RK4(IE_DO(h/net.steps, integrator=net.integrator), N=10).flow(x0, size, DOsteps)
     flow_pred = net.predict(x0, size, steps=DOsteps, keepinitx=True, returnnp=True)
-    ax.plot(t, flow_modi[:, 0], color='red', label='IMDE',zorder=1)
-    ax.plot(t, flow_pred[:, 0], color='b', label='Neural ODE',  linestyle='--', dashes=(4, 2),zorder=2)    
+    ax.plot(t, flow_modi[:, 0], color='red', label='IMDE', linewidth= linewidth, zorder=1)
+    ax.plot(t, flow_pred[:, 0], color='b', label='Neural ODE',  linestyle='--', dashes=(4, 2), linewidth= linewidth, zorder=2)    
     ax.set_title(net.integrator.title()+' $S=${}'.format(net.steps), fontsize=titlesize, loc= 'left')
     
   
