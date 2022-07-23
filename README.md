@@ -60,5 +60,7 @@ python Plot_hami.py
 ## References
 [1] [torchdiffeq](https://github.com/rtqichen/torchdiffeq)
 
-[2] Ricky T. Q. Chen, Yulia Rubanova, Jesse Bettencourt, David Duvenaud. 
+[2] [learner](https://github.com/jpzxshi/learner)
+
+[3] Ricky T. Q. Chen, Yulia Rubanova, Jesse Bettencourt, David Duvenaud. 
 "Neural Ordinary Differential Equations." *Advances in Neural Processing Information Systems.* 2018. 
